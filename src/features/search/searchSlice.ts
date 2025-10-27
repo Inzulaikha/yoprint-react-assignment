@@ -12,6 +12,7 @@ export type SearchState = {
   results: SearchResponse['data']
   lastPage: number
   total: number
+  safeMode: boolean
 }
 
 const initialState: SearchState = {
@@ -21,6 +22,7 @@ const initialState: SearchState = {
   results: [],
   lastPage: 1,
   total: 0,
+  safeMode: true,
 }
 
 export const runSearch = createAsyncThunk<
@@ -30,20 +32,23 @@ export const runSearch = createAsyncThunk<
 >('search/run', async ({ query, page }, thunkAPI) => {
   const controller = new AbortController()
   thunkAPI.signal.addEventListener('abort', () => controller.abort())
-  const res = await searchAnime(query, page, controller.signal)
+  const { safeMode } = thunkAPI.getState().search
+  const res = await searchAnime(query, page, controller.signal, safeMode)
   return { res, query, page }
 })
 
 const slice = createSlice({
   name: 'search',
-  initialState,
+  initialState: {
+    ...initialState,
+    safeMode: JSON.parse(localStorage.getItem('safeMode') ?? 'true'),
+  } as SearchState,
   reducers: {
-    setQuery(state, action: PayloadAction<string>) {
-      state.query = action.payload
-      state.page = 1
-    },
-    setPage(state, action: PayloadAction<number>) {
-      state.page = action.payload
+    setQuery(state, action: PayloadAction<string>) { state.query = action.payload; state.page = 1 },
+    setPage(state, action: PayloadAction<number>) { state.page = action.payload },
+    toggleSafe(state) {
+      state.safeMode = !state.safeMode
+      localStorage.setItem('safeMode', JSON.stringify(state.safeMode))
     },
     reset: () => initialState,
   },
@@ -65,5 +70,5 @@ const slice = createSlice({
   }
 })
 
-export const { setQuery, setPage, reset } = slice.actions
+export const { setQuery, setPage, toggleSafe, reset } = slice.actions
 export default slice.reducer
