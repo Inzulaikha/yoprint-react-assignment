@@ -1,51 +1,54 @@
-# 🎯 YoPrint React Coding Project – Anime Search App
+# Anime Finder App
 
-A clean, responsive Anime Search application built with **React + TypeScript + Redux Toolkit + Vite**.  
-Deployed live on **Netlify** 🚀
-
-👉 **Live Demo:** [https://yoprintanimesearch.netlify.app/](https://yoprintanimesearch.netlify.app/)
+A Vite + React + TypeScript project using the **Jikan API** to search anime titles with integrated **Safe Mode (NSFW filter)**.
 
 ---
 
-## 🧠 Overview
-This app lets users search anime using the **Jikan API**, view details, and toggle a “Safe Mode” that hides mature content.  
-Built with attention to UI polish, accessibility, and mobile responsiveness.
+## 🚀 Features
+- 🔍 Live anime search (powered by Jikan API)
+- 📱 Fully responsive grid layout
+- 💬 Debounced input for smooth search
+- 🧠 Redux Toolkit for state management
+- 🪄 Skeleton loaders for better UX
+Bonus Implementation
+- ⚙️ Safe Mode toggle to block NSFW (R+ / Rx) content
+- 🧭 Pagination (15 items per page)
 
 ---
 
-## 🧩 Core Features
-- 🔍 **Search** anime titles with debounce (no lag or duplicate requests)
-- 📄 **View Details** for each anime
-- 🚦 **Pagination** for browsing multiple result pages
-- 🌗 **Light/Dark Mode** toggle with smooth transition
-- 🔒 **Safe Mode** filter to block NSFW titles
-- ⚡ **Skeleton loaders** for better UX during fetch
-- 💥 Fully responsive across desktop & mobile
-
----
-
-## 🧠 Tech Stack
-| Category | Tech |
-|-----------|------|
-| Frontend Framework | React 18 + Vite |
-| Language | TypeScript |
+## 🧩 Tech Stack
+| Area | Tools / Libraries |
+|------|--------------------|
+| Frontend | React + TypeScript + Vite |
 | State Management | Redux Toolkit |
-| Styling | CSS Modules / custom responsive CSS |
-| API | Jikan REST API |
+| API | [Jikan API v4](https://docs.api.jikan.moe) |
+| Styling | CSS3, Responsive Grid |
 | Deployment | Netlify |
-| Package Manager | npm (v9+) |
+| AI Support | ChatGPT (debugging) |
 
 ---
 
-## 🛠️ Setup & Run Locally
+## ⚙️ Installation & Setup
 
 ```bash
-# clone repository
-git clone https://github.com/Inzulaikha/yoprint-react-assignment.git
-cd yoprint-react-assignment
+# 1. Install dependencies
+npm install
 
-# install dependencies (npm only)
-npm ci
-
-# start development server
+# 2. Start development server
 npm run dev
+```
+
+App will run at: **http://localhost:4000**
+
+---
+
+## 🧠 Safe Mode & NSFW Handling
+- When **Safe Mode** is ON:
+  - NSFW keywords like *hentai, r18, nsfw, etc.* are cleared instantly.
+  - Results rated **R+** or **Rx** are hidden.
+- When **Safe Mode** is OFF:
+  - All anime are visible.
+- Search results always show up to **15 cards per page**.
+
+---
+
