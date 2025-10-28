@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
 import { runSearch, setPage, setQuery, toggleSafe } from '../features/search/searchSlice'
@@ -6,7 +6,7 @@ import useDebounce from '../hooks/useDebounce'
 import AnimeCard from '../components/AnimeCard'
 import Pagination from '../components/Pagination'
 import type { Anime } from '../api/jikan'
-import { isMature } from '../api/jikan'
+import { isNsfwQuery, PER_PAGE } from '../api/jikan'
 
 export default function SearchPage() {
   const dispatch = useDispatch<AppDispatch>()
@@ -15,34 +15,42 @@ export default function SearchPage() {
 
   const [input, setInput] = useState(query)
   const debounced = useDebounce(input, 250)
-  const firstLoad = useRef(true)
 
-
+  // keep Redux query in sync with debounced text
   useEffect(() => {
-    dispatch(setQuery(debounced))
-  }, [debounced, dispatch])
+    if (debounced !== query) {
+      dispatch(setQuery(debounced))
+      dispatch(setPage(1))
+    }
+  }, [debounced, query, dispatch])
 
-
+  // apply safeMode styling & subtle transition
   useEffect(() => {
     const root = document.documentElement
     root.setAttribute('data-mode', safeMode ? 'safe' : 'unsafe')
-
-
     root.classList.remove('mode-change')
-
     void root.offsetWidth
     root.classList.add('mode-change')
-
     return () => root.setAttribute('data-mode', 'safe')
   }, [safeMode])
 
+  // fetch whenever these change (debounced via setQuery above)
   useEffect(() => {
-    if (firstLoad.current) firstLoad.current = false
-    dispatch(runSearch({ query, page }))
-  }, [dispatch, query, page])
+    if (query || page) dispatch(runSearch({ query, page }))
+  }, [dispatch, query, page, safeMode])
 
+  // clear NSFW input instantly when Safe Mode is ON
+  useEffect(() => {
+    if (safeMode && isNsfwQuery(input)) {
+      setInput('')
+      dispatch(setQuery(''))
+      dispatch(setPage(1))
+    }
+  }, [safeMode, input, dispatch])
 
-  const safeResults = safeMode ? results.filter(a => !isMature((a as any).rating)) : results
+  // No client-side filtering needed - API handles it with sfw=true
+  // Just trim to exactly PER_PAGE cards
+  const pageItems = results.slice(0, PER_PAGE)
 
   return (
     <div className="container">
@@ -72,28 +80,39 @@ export default function SearchPage() {
         autoFocus
       />
 
-      {status === 'loading' && (
-        <div className="skeleton-grid">
-          {Array.from({ length: 12 }).map((_, i) => <div className="skeleton-card" key={i} />)}
+      {status === 'failed' && (
+        <div className="center small">
+          {error?.includes('429')
+            ? '⚠️ Too many requests — please wait a moment…'
+            : `Error: ${error}`}
         </div>
       )}
 
-      {status === 'failed' && <div className="center small">Error: {error}</div>}
-      {safeResults.length === 0 && status !== 'loading' && (
+      {status === 'loading' && (
+        <div className="skeleton-grid">
+          {Array.from({ length: PER_PAGE }).map((_, i) => (
+            <div className="skeleton-card" key={i} />
+          ))}
+        </div>
+      )}
+
+      {pageItems.length === 0 && status !== 'loading' && !error && (
         <div className="center small">No results. Try another title.</div>
       )}
 
-      {safeResults.length > 0 && (
+      {pageItems.length > 0 && (
         <>
           <div className="small" style={{ marginTop: 10 }}>
-            Showing {safeResults.length} of {total || '…'} results {safeMode && '• SFW'}
+            Showing {pageItems.length} of {total || '…'} results {safeMode && '• SFW'}
           </div>
 
           <div className="grid" key={`${safeMode}-${query}-${page}`}>
-            {safeResults.map((a: Anime) => <AnimeCard key={a.mal_id} item={a} />)}
+            {pageItems.map((a: Anime) => (
+              <AnimeCard key={a.mal_id} item={a} />
+            ))}
           </div>
 
-          <Pagination page={page} lastPage={lastPage} onChange={(p) => dispatch(setPage(p))} />
+          <Pagination page={page} lastPage={lastPage} onChange={p => dispatch(setPage(p))} />
         </>
       )}
     </div>
