@@ -1,4 +1,4 @@
-# Anime Finder App
+# Anime Search App
 
 A Vite + React + TypeScript project using the **Jikan API** to search anime titles with integrated **Safe Mode (NSFW filter)**.
 
@@ -10,7 +10,7 @@ A Vite + React + TypeScript project using the **Jikan API** to search anime titl
 - 💬 Debounced input for smooth search
 - 🧠 Redux Toolkit for state management
 - 🪄 Skeleton loaders for better UX
-Bonus Implementation
+# Bonus Implementation
 - ⚙️ Safe Mode toggle to block NSFW (R+ / Rx) content
 - 🧭 Pagination (15 items per page)
 
