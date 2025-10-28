@@ -1,12 +1,19 @@
 # PROMPTS LOG
 
-I used AI assistance to accelerate development. Below are the prompts and what they helped with.
+## AI Collaboration Summary
 
-## 2025-10-28 – Layout, Safe Mode & Responsiveness
-**Prompt:** “Make Safe Mode toggle change color, add WOW factor, make header responsive, prevent inappropriate anime.”
-**What it helped with:** 
-- Header layout (`page-head`, `head-right`) and mobile stacking CSS
-- Safe Mode tint via `data-mode` + subtle animation (`mode-change` class)
-- SFW filter using `isMature(rating)`
-- Card/grid entrance animations
+### What I asked
+- How to handle NSFW filtering and Safe Mode toggling.
+- How to make the layout responsive and show 15 anime per page.
 
+### What AI provided
+- Debug fixes for:
+  - NSFW content filtering
+  - Page size consistency (15 items)
+
+### Result
+The app now:
+- Displays 15 anime cards per page.
+- Filters out NSFW results when Safe Mode is enabled.
+- Clears NSFW searches automatically without reloading.
+- Is fully responsive for desktop and mobile.

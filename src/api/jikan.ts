@@ -1,4 +1,5 @@
 const BASE = 'https://api.jikan.moe/v4'
+export const PER_PAGE = 15 // show 15 per page
 
 export type Anime = {
   mal_id: number
@@ -22,8 +23,16 @@ export type SearchResponse = {
   }
 }
 
-export type Rating = 'G'|'PG'|'PG-13'|'R'|'R+'|'Rx'|string
+export type Rating = 'G' | 'PG' | 'PG-13' | 'R' | 'R+' | 'Rx' | string
 export const isMature = (rating?: Rating) => rating?.startsWith('R+') || rating === 'Rx'
+
+// --- NEW: helper terms + detector for NSFW queries ---
+export const NSFW_TERMS = ['nsfw', 'hentai', 'r18', 'adult', 'ecchi', 'ero', 'x-rated']
+export const isNsfwQuery = (q?: string) => {
+  if (!q) return false
+  const s = q.toLowerCase()
+  return NSFW_TERMS.some(t => s.includes(t))
+}
 
 export async function searchAnime(
   q: string,
@@ -34,8 +43,9 @@ export async function searchAnime(
   const url = new URL(`${BASE}/anime`)
   if (q) url.searchParams.set('q', q)
   url.searchParams.set('page', String(page || 1))
-  url.searchParams.set('limit', '12')
-  if (sfw) url.searchParams.set('sfw', 'true') // block adult content
+  url.searchParams.set('limit', String(PER_PAGE)) // now 15 per page
+  if (sfw) url.searchParams.set('sfw', 'true') // block adult content server-side
+
   const res = await fetch(url.toString(), { signal })
   if (!res.ok) throw new Error(`Search failed (${res.status})`)
   return res.json()
